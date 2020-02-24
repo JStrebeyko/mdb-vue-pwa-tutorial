@@ -1,0 +1,137 @@
+<!--Section: Tutorial content-->
+<section class="tutorial" id="adding-pwa">
+  <h2 class="title mb-4">
+    <strong>HTTPS & Service workers</strong>
+  </h2>
+
+  <p class="description">
+    Let's talk about the last two requirements that we need to meet before our app becomes installable - having it served through <code>https</code> and do so accompanied by a <code>service worker</code>. As you will see, those two elements are tightly connected.</p>
+
+  <div class="text-center mt-5"> <img class="img-fluid" src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/vue/tutorials/vue-pwa/4/banner.jpg"
+      alt="Install baner"></div>
+
+
+  <h4 class="mt-5"><strong>What is a service worker?</strong> </h4>
+
+  <p class="description">A service worker is a type of web worker, an exciting concept which has opened modern browsers to the world of offline experiences. How? In short, it is a script that runs on a separate thread, independently from the website. Why is it such a game-changer?</p>
+
+  <p class="description">When you took your first steps into the world of JavaScript, you probably saw how infinite loops in your code affected the UI - namely, the JS-run functionalities became unreposnsive. They blocked "the main thread" and then the interface froze.</p>
+
+  <p>It's because JavaScript is a single threaded language, which means it has one call stack and one memory heap. As such, it executes code in order and when things go south (like loops iterating endlessly or synchronous requests taking too long), the whole thing topples.</p>
+
+  <p>The idea of a web worker is exciting, because it has its own thread, and so it can be performing heavy-lifting tasks in the background, which otherwise would reduce your website's performance. What's more, according to <a href="https://www.w3.org/TR/workers/" target="_blank">the spec</a>, a service worker may be even be working for long after the window responsible for its spawning has been closed (although it can take no more new tasks).</p>
+
+  <p>"Ok," someone could say, "so a service worker is like some additional computing power, what about it?" Workers would be a considerable boost with no clear direction, if it wasn't for one architecural implication, which is that they sit between the browser and the network and act as proxy servers. It means they can intercept requests made by the website and <strong>redirect them to the cache</strong>. Imagine, there is an outgoing request for constent, all of which gets saved in the browser memory. It means that next time we are trying to access some of it, <strong>no internet connection is needed</strong>.</p>
+
+  <p>This is where the service worker shines - as vehicles for caching and data management. They can provide us with content access and features like push notifications, even in case the internet connection was lost.</p>
+
+  <p>This kind of power comes with a price, though. This is a new technology, so it's only supported by modern browsers. Also, as service workers could be easily misused, they use is restricted to running across HTTPS. Although during development, you'll be able to use a service worker through <code>localhost</code>, to deploy it on a site you'll need to have <strong>HTTPS setup on your server, for security reasons</strong>.</p>
+
+
+  <h4 class="mt-5"><strong>Service Workers & Vue-CLI</strong> </h4>
+
+  <p>If you start your project off with <code>vue-cli</code> with PWA support, the <code>src/registerServiceWorker.js</code> will be provided out-of-the-box. It uses <code><a href="https://www.npmjs.com/package/register-service-worker">register-service-worker</a></code>, a module created by Evan You, Vue author. It simplifies worker registration and provides hooks for user to customize worker's reaction to some of the most common events, like caching, finding an update or going offline.</p>
+
+  <p>This would only be the top layer, though - the <code>service-worker.js</code> file referenced in the <code>src/registerServiceWorker.js</code> would only be created by <code>workbox-webpack-plugin</code> as part of the app build process. Using <code>workbox</code> under the hood means having optimized, common caching strategies prepared by folks at Google available. As you can see, a lot of effort went into having the development process simplified, with some of its complexities obscured. In this tutorial, though, it's all about getting our hands dirty! Let's try to construct a legitimate service worker ourselves.</p>
+
+  <mdbsnippet>
+    <code data-lang="js" data-name="serviceWorker.js">
+      self.addEventListener('install', function(event) {
+        event.waitUntil(
+          caches.open('v1').then(function(cache) {
+            return cache.addAll([
+              './index.html'
+            ]);
+          })
+        );
+      });
+
+      self.addEventListener('fetch', function(event) {
+        event.respondWith(caches.match(event.request).then(function(response) {
+          // caches.match() always resolves
+          // but in case of success response will have value
+          if (response !== undefined) {
+            return response;
+          } else {
+            return fetch(event.request).then(function (response) {
+              // response may be used only once
+              // we need to save clone to put one copy in cache
+              // and serve second one
+              let responseClone = response.clone();
+
+              caches.open('v1').then(function (cache) {
+                cache.put(event.request, responseClone);
+              });
+              return response;
+            }).catch(function () {
+              return console.log('no cache response!');
+            });
+          }
+        }));
+      });
+      </code>
+  </mdbsnippet>
+
+  <p>This is a simple service worker file - it install by adding an array of files to cache, which in our case is as much as the <code>index.html</code> file. In case there is a request for it, it will be served from the cache. Let's add it directly to our <code>dist</code> folder (which gets automatically created after <code>yarn build</code> or <code>yarn deploy</code> commands). That way we don't need to mess with our webpack config or redefine out service worker's scope.</p>
+
+  <p>Finally, we should register our worker - registering is just a funky way of ensuring our caching mechanism runs as quick as our HTML gets done being parsed by the browser. Add the following inside a regular <code>script</code> tag to your <code>index.html</code> in the root of the app:</p>
+
+  <mdbsnippet>
+    <code data-lang="js" data-name="index.html">
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('serviceWorker.js', {scope: '/'}).then(function(reg) {
+
+            if (reg.installing) {
+              console.log('Service worker installing');
+            } else if(reg.waiting) {
+              console.log('Service worker installed');
+            } else if(reg.active) {
+              console.log('Service worker active');
+            }
+
+          }).catch(function(error) {
+            // registration failed
+            console.log('Registration failed with ' + error);
+          });
+        }
+    </code>
+  </mdbsnippet>
+
+
+    Enough talk, let's get to work! Open you project directory and ... wait, we already have there a file called <code>serviceWorker.js</code>.
+    It's provided by the <code>creacte-react-app</code> boilerplate.</p>
+
+  <p>All we have to do is to open src/index.js file and change one line. Change serviceWorker.unregister() to </p>
+
+  <mdbsnippet>
+    <code data-lang="js" data-name="src/index.js">
+            serviceWorker.register();
+          </code>
+  </mdbsnippet>
+
+  <p>We have already deployed our applications to Firebase Hosting, so we also don't need to worry about HTTPS - our
+    domain is already HTTPS-certified. So let's update our hosted app: </p>
+
+  <mdbsnippet>
+    <code data-lang="js" data-name="CLI">
+            npm run deploy
+          </code>
+  </mdbsnippet>
+
+  <p>Now, let's test it. If you open your website, after a few seconds you should see an install banner. Install the
+    app.</p>
+
+  <div class="text-center"> <img class="img-fluid" src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/vue/tutorials/vue-pwa/4/save.jpg"
+      alt="Install baner"></div>
+
+  <p>Do you see this? Our nice app icon is staring at us from the smartphone's home screen!</p>
+
+  <div class="text-center"> <img class="img-fluid" src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/react/tutorials/react-pwa/4/homescreen.jpg"
+      alt="Homescren View"><br></div>
+
+
+  <p>In the next lesson, we will make our application work offline </p>
+
+  <p class="description">Something doesn't work for you? Then check the code for this lesson in our <a href="https://github.com/mdbootstrap/React-Tutorial-PWA/archive/master.zip">repository</a></p>
+</section>
+<!--Section: Tutorial content
