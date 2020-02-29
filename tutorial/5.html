@@ -27,10 +27,10 @@
       </code>
     </mdbsnippet>
 
-    <p class="description">Pretty neat, huh? It returns a boolean answer, that should be <code>false</code> for stuff served from our own webserver (localhost). Despite all the glitter and sparks, in the morning we should all face the truth: the solution is not that useful. We do not want to be monitoring the status every given interval - in fact, we do not care about it until the very moment it changes. And when it finally does, we want to react and vue the notification. Yes, it was a pun. Haha. So how do we do that?</p>
+    <p class="description">Pretty neat, huh? It returns a boolean answer, that should be <code>false</code> for stuff served from our own webserver (localhost). Despite all the glitter and sparks, in the morning we should all face the truth: the solution is not that useful. We do not want to be monitoring the status every given interval - in fact, we do not care about it until the very moment it changes. And when it finally does, we want to react and vue the notification. Yes, it was a pun. Haha. So, how do we do that?</p>
 
     <p class="discription">
-      When the <code>Navigato.onLine</code>'s value changes, a Window interface fires an event. What event? It depends on the value, but either way it will be one of <code>online</code> or <code>offline</code> events. That means that we can listen to it!
+      When the <code>navigator.onLine</code>'s value changes, the Window interface fires an event. What event? It depends on the value, but either way it will be one of <code>online</code> or <code>offline</code> events. That means that we can listen to it!
     </p>
 
     <mdbsnippet>
@@ -46,7 +46,7 @@
       <p>Please note that this event is inherently unreliable. 'Nuff said that a computer can be connected to a network and not have Internet access.</p>
     </blockquote>
 
-    <p class="description">Time to get to work! We will begin with gearing up our <code>App.vue</code> file with some useful logic. Let's add event listeners to the window interface on the App's <code>created</code> lifecycle hook, so they can start listening to the <code>online</code>/<code>offline</code> events right away. The second thing are the callbacks. They should allow us to somehow reflect the change taking place by saving it somewhere, so we need a legit <code>data</code> object property on our <code>App</code> component. I called it <code>status</code>, but obiously you can call it whatever you want as long as you stay consistent. For sake of brevity and versatility, let's have its type set as a <code>string</code>.</p>
+    <p class="description">Time to get to work! We will begin with gearing up our <code>App.vue</code> file with some useful logic. Let's add event listeners to the Window interface on the App's <code>created</code> life-cycle hook, so they can start listening to the <code>online</code> / <code>offline</code> events right away. The second thing are the callbacks. They should allow us to somehow reflect the change taking place by saving it somewhere, so we need a legit <code>data</code> object property on our <code>App</code> component. I called it <code>status</code>, but obviously you can call it whatever you want - as long as you stay consistent throughout the code.</p>
 
     <mdbsnippet>
       <code data-lang="js" data-name="App.vue">
@@ -63,7 +63,7 @@
             this.status = 'offline';
           });
       },
-      // methods and so forth..
+      // component's methods...
       </code>
     </mdbsnippet>
 
@@ -71,7 +71,7 @@
 
     <p class="description">That's awesome, but while the app can tell that something changed, our users cannot. We need to consume the data to gain its powers; to pass the knowledge of the <code>status</code> down the DOM tree, where hopefully we'll have a component to display it. Actually, why not crate one now?</p>
 
-    <p class="discription">Start by creating a new file in the <code>src/components</code> directory and call it <code>Notificaion.vue</code> (then again you can call it <code>Whatever.vue</code>, enough to stick to the name). There is a number of reasons why we would want to have it in a separate file - encapsulation, making use of the elegant, <code>.vue</code> Single File Components, keeping <code>App.vue</code> tidy are some of the most important. You are free to design this notification as you wish, it's the underlying logic that's important. In our example, we will use a MDBootstrap Alert component for the nice looks & animations.</p>
+    <p class="discription">Start by creating a new file in the <code>src/components</code> directory and call it <code>Notificaion.vue</code> (then again you can call it <code>Whatever.vue</code>, just stick to it!). There is a number of reasons why we would want to have it in a separate file - encapsulation, making use of the elegant, <code>.vue</code> Single File Components, keeping <code>App.vue</code> tidy are some of the most important. You are free to design this notification as you wish, it's the underlying logic that's important. In our example, we will use a MDBootstrap Alert component for the nice looks & animations.</p>
 
     <mdbsnippet>
       <code data-lang="js" data-name="Notification.vue - script tag">
@@ -99,7 +99,7 @@
                       emoji: '👌',
                       text: 'Back online!'
                     }
-                  }
+                  },
                   isShown: false,
                 }
               },
@@ -123,7 +123,7 @@
     </mdbsnippet>
 
 
-    <p class="discription">Let's walk through the component together, starting from the <code>script</code> tag. We import the <code>mdbAlert</code> from <code>mdbvue</code> and declare it as component used by the <code>Notification</code> to help us display the message. Next, we declare the anticipated props, which is the <code>status</code> string. The data object has two properties - <code>availableStatuses</code> object and <code>isShown</code> boolean. First one is used to store possible statuses - for now it's only <code>online</code> and <code>offline</code>, but as your app grows, there might be a need to enhance the object, perhaps even to import it from an external file.</p>
+    <p class="discription">Let's walk through the component together. We import the <code>mdbAlert</code> from <code>mdbvue</code> library and declare it as component used. Next, we declare the anticipated props, which is the <code>status</code> string. The data object has two properties - <code>availableStatuses</code> object and <code>isShown</code> boolean. First one is used to store possible statuses - for now it's only <code>online</code> and <code>offline</code>, but as your app grows, there might be a need to enhance the object, perhaps even to import it from an external file.</p>
 
     <p class="discription">The other one, <code>isShown</code>, will be used to toggle visibility of mdbAlert. We don't want our notifications being shown all the time, right? To toggle the boolean we will be using the subsequent <code>showAlert</code> and <code>hideAlert</code> methods. For our component, showing means turning the <code>isShown</code> value to <code>true</code> and setting a timeout of <code>3000</code>miliseconds after which it will be turned back to <code>false</code>.</p>
 
@@ -160,8 +160,7 @@
 
 <mdbsnippet>
   <code data-lang="css" data-name="Notification.vue - style tags">
-    &lt;style&gt;
-
+    &lt;style scoped&gt;
         .alert {
           position: absolute;
           z-index: 2;
@@ -173,7 +172,6 @@
         }
       &lt;/style&gt;
   </code>
-
 </mdbsnippet>
 
     <p class="discription">Finally, some styling, and most notably - the <code>position: absolute</code> CSS rule. Now our component will appear in the top right corner of the screen without distracting natural flow of elements positioned relatively. The component is ready!</p>
@@ -191,12 +189,10 @@
           Notification,
           ...
         }
-
-        &lt;Notification :status="status"/&gt;
       </code>
     </mdbsnippet>
 
-    <p class="discription">There is only one thing left to do, and it is including our baby into the parent <code>App.vue</code> component. Let's open the file, <code>import Notification from '@/components/Notification';</code> and register it by including it in the <code>components</code> object. Let's add the component into the <code>App.vue</code>'s <code>&lt;template&gt;</code> tag as a direct <code>mdbContainer</code> wrapper's child. Make sure that our key prop, <code>status</code>, is passed to it in a bound (dynamic) way by preceding prop name with a colon. </p>
+    <p class="discription">There is only one thing left to do, and it is including our baby into the parent <code>App.vue</code> component. Let's open the file, <code>import Notification from '@/components/Notification';</code> and register it by including it in the <code>components</code> field. Let's add it to the <code>App.vue</code>'s <code>&lt;template&gt;</code> tag as a direct <code>mdbContainer</code>'s child. Make sure that our key prop, <code>status</code>, is passed to it in a bound (dynamic) way by preceding prop name with a colon. </p>
 
     <p class="discription">Open your app and try to turn-on and turn-off your internet connection. You should see something similar to this:
 
@@ -211,7 +207,7 @@
       <p>In case things went a bit south, below is the full code for both <code>App.vue</code> and <code>componens/Notification.vue</code>:</p>
 
     <mdbsnippet>
-      <code data-lang="js" data-name="App.vue">
+      <code data-lang="js" data-name="src/App.vue">
 &lt;template&gt;
   &lt;mdb-container&gt;
     &lt;Notification :status="status"/&gt;
@@ -399,7 +395,7 @@ export default {
 };
 &lt;/script&gt;
 </code>
-      <code data-lang="js" data-name="Notification.vue">
+      <code data-lang="js" data-name="src/componentsNotification.vue">
 &lt;template&gt;
   &lt;mdb-alert
     v-if="isShown"
