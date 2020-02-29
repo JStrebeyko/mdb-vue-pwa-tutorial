@@ -6,8 +6,7 @@
 
   <p class="description">
     Let's talk about the last two requirements that we need to meet before our app becomes installable - having it
-    served through <code>https</code> and do so accompanied by a <code>service worker</code>. As you will see, those two
-    elements are tightly connected.</p>
+    served through <code>https</code> and do so accompanied by a <code>service worker</code>.</p>
 
   <div class="text-center mt-5"> <img class="img-fluid"
       src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/vue/tutorials/vue-pwa/4/banner.jpg"
@@ -44,12 +43,9 @@
   <p>This is where the service worker shines - as vehicles for caching and data management. They can provide us with
     content access and features like push notifications, even in case the internet connection was lost.</p>
 
-  <p>This kind of power comes with a price, though. This is a new technology, so it's only supported by modern browsers.
-    Also, as service workers could be easily misused, they use is restricted to running across HTTPS. Although during
-    development you'll be able to use a service worker through <code>localhost</code>, to deploy it on a site you'll
-    need to have <strong>HTTPS setup on your server, for security reasons</strong>.</p>
+  <p>This kind of power comes with a price, though. This is a new technology, so it's only supported by modern browsers. Also, as service workers could be easily misused, they use is restricted to running across HTTPS. Although during development you'll be able to use a service worker through <code>localhost</code>, to deploy it on a site you'll need to have <strong>HTTPS setup on your server, for security reasons</strong>.</p>
  
-    <p>Service Workers are a huge topic by themselves and here I'll touch upon the bare, code-based essentials in the PWA context - the way to register one, what it usually consists of and some tips on development. If you'll find yourself hungry for more focus on the tech (it definitely deserves) after we're done here, I suggest going over some industry leaders' <a href="https://developers.google.com/web/fundamentals/primers/service-workers/">materials concerning the subject itself</a>.</p>
+    <p>Web workers are a huge topic by themselves and here I'll touch upon the bare, code-based essentials of service worker in the PWA context - the way to register one, what it usually consists of and some tips on development. If you'll find yourself hungry for more after we're done here ( and the tech definitely deserves it), I suggest going over some industry leaders' <a href="https://developers.google.com/web/fundamentals/primers/service-workers/">materials</a>.</p>
 
     <h4 class="mt-5"><strong>The File</strong> </h4>
 
@@ -98,23 +94,21 @@
 
     <p>As you can see, the worker above listens for two events.</p>
 
-    <p>The <code>install</code> event happens after as part of the worker's lifecycle, and provides an opportunity to define the caching polocy. In this case, it opens a perticular cache (<code>v1</code>) and uses the <code>cache.addAll()</code> method to add a list of specific files there. As of now, we only cache <code>./index.html</code></p>
+    <p>The <code>install</code> event provides an opportunity to define the caching policy. In this case, it opens a perticular cache (named <code>v1</code>) and uses the <code>cache.addAll()</code> method to add a list of specific files there. As of now, we only cache <code>./index.html</code></p>
 
-    <p>To define the behaviour in reposinse to requests for particular resources the <code>fetch</code> event callback and response's <code>.respondWith()</code> method are used. In case there is an already stored resource for a specific request (<code>caches.match(event.request)</code>) and it's not undefined, we retrieve it and pass as the return value of the <code>fetch</code>. In case it is in fact undefined (so, not stored), we do a request to the web for it, but immidiately it gets back, we clone it, so we can both store it in the cache and serve it as a response.</p>
+    <p>What we have stored we want to ultiately retrieve. To define the fashion in which it happens, <code>fetch</code> event callback and response's <code>.respondWith()</code> method are used. In case there is an already stored resource for a specific request (<code>caches.match(event.request)</code>) and it's not undefined, we retrieve it and pass as the return value of the <code>fetch</code>. In case it is in fact undefined (so, not stored), we do a request to the web for it, but immidiately it gets back, we clone it, so we can both store it in the cache and serve it as a response.</p>
 
-    <p>With this beauty, we cache what we need, and once the client's on a subsequent visit, the resoueces it requests go straight from the cache -- and if we do not have them stored yet, we immidiately do.</p>
+    <p>With this worker script we cache what we need, and once the client's on a subsequent visit, the resources it requests go straight from the cache -- and if we do not have them stored yet, we immidiately do.</p>
 
     <h4 class="mt-5"><strong>The Registration</strong> </h4>
 
-    <p>For the above file to be considered a service worker and not a regular, "same-thread" JavaScript file, it must be registered as such. We could do it wherever (including a rude <code>script</code> tag within HTML), but we'll do it in the (webpack's & JavaScripts') entry point, namely <code>src/main.js</code>, underneath the root Vue insance.</p>
+    <p>For the above file to be considered a service worker and not a regular, "same-thread" JavaScript file, it must be registered as such. We could do it wherever (including a rude <code>script</code> tag within HTML), but we'll do it in the (webpack's & JavaScripts') entry point, namely the <code>src/main.js</code> file, tucked underneath the root Vue insance.</p>
 
     <mdbsnippet>
       <code data-lang="js" data-name="./service-worker.js">
         if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js').then(() => {
-              console.log('Service Worker registered!');
-            });
+          navigator.serviceWorker.register('/service-worker.js').then(() => {
+            console.log('Service Worker registered!');
           });
         } else {
           console.log('Service Worker not supported :(');
@@ -122,19 +116,19 @@
       </code>
     </mdbsnippet>
 
+    <p>It would be worth to make sure that the registration, which still takes place on the main thread, is not blocking whatever we want to render. We could achieve it by simply wrapping it inside the window's <code>load</code> event callback. In this case, though, the webpack-transpiled code is being injected at the end of the <code>&lt;body&gt;</code>, which suffices in our case.</p>
+
   <!-- TODO: Double-check the location - it should not be /dist -->
 
   <h4 class="mt-5"><strong>Workflow twaeks</strong> </h4>
 
-  <p>We have all the main indridients for a successful service worker with its <code>register</code> and <code>install</code> steps accounted for! You might find an issue in the console regarding the files MIME file, though.</p>
+  <p>We have all the main indridients for a successful service worker with its <code>register</code> and <code>install</code> life-cycle steps accounted for! You might find an issue in the console regarding the files MIME file, though.</p>
   
-  <p>It originates from the fact that our webpack dev server and production build configs can't yet handle a JavaScirpt file being served from the directory root and not being processed by webpack. Moving <code>service-worker.js</code> to the <code>/static</code> directory (where our manifest.json already resides) seems like a good idea; unfortunately, it wouldn't help.</p>
+  <p>It originates from the fact that our webpack dev server and production build configs don't expect a JavaScirpt file being served from the directory root and not being processed by the bundler. Moving <code>service-worker.js</code> to the <code>/static</code> directory (where our manifest.json already resides) seems like a good way to sneak it in; unfortunately, it wouldn't help our case.</p>
   
-  <p>Considering how powerful a feature the service worker is, there are security measures undertaken to protect from misuse. One of them is the the service worker's <code>scope</code> - even though we can declare it explicitly from the options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function, it can never go "up" from where the service worker is defined. It boils down to the fact a worker in <code>/static</code> directory could never reach files outside of it, like our <code>index.html</code></p>
+  <p>Considering how powerful a feature the service worker is, there are security measures undertaken to protect from misuse. One of them is the the service worker's <code>scope</code> - even though we can declare it explicitly from the options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function, it can never go "up" from where the service worker is defined. It means that you can have define custom workers for different places of your projects, but also that the worker in <code>/static</code> directory could never reach files outside of it, like our <code>index.html</code>.</p>
 
-  What we need to do, then, is to slightly alter our config files in the <code>/build</code> directory. In both our <code>webpack.dev.config.js</code> and <code>webpack.prod.config.js</code> we are using the <code>CopyWebpackPlugin</code> to move our files around - let's mention our service worker there! That way it will available both for the dev server and also in the <code>/dist</code> directory once we build.
-
-  you tried to run the app and found problems reported by the console. It is caused by the fact that our webpack config does not expect a JavaScript file being served locally and yet not It's just that the webpack dev server and production build scripts can't yet handle there being a JavaScript it's chances for embedding the the worker's caching logic into our regular main JS file, so its creation and maintanance must be accounted for in our workflow (more on that in a second).</p>
+  We need to slightly alter our <code>dev</code> and <code>prod</code> config files in the <code>/build</code> directory. In both of them we are utilizing the <code>CopyWebpackPlugin</code> to move our files around. Let's mention our service worker there - that way it will available both for the dev server and also in the <code>/dist</code> directory once we build.
 
   <mdbsnippet>
     <code data-lang="js" data-name="./build/webpack.dev.config.js">
@@ -165,17 +159,16 @@
     </code>
   </mdbsnippet>
 
+  <p>And voilà! Now we are declaratively giving access to the file to the webpack dev server, while also having the worker script copied to the <code>/dist</code> when we build.</p>
+
   <h4 class="mt-5"><strong>Default scaffolding with Vue-CLI</strong></h4>
 
-  <p>Our purpose here was to do everything by ourselves for learning purposes, but in everyday developer work we could make use of some already existing tools for the job. For new projects usually we wouldn't need the fine-grained control provided with a custom webpack config, and could go for a ready-made, scaffolding solution of <a href="https://cli.vuejs.org/guide/"><code>Vue-CLI</code></a> - a command line solution providing us with less "to the metal" configuration, but ready-made project strucutre are some great development features, including webpack handling and a great PWA support plugin.</p>
+  <p>Our purpose here was to do everything by ourselves for learning purposes, but in everyday developer work we could make use of some already existing tools for the job. For new projects usually we wouldn't need the fine-grained control provided with a custom webpack config, and could go for a ready-made, scaffolding solution of <a href="https://cli.vuejs.org/guide/"><code>Vue-CLI</code></a>. The command line solution provides us with less "to the metal" configuration options, as the bundler's roughness is hidden beneath the <code>vue-cli-service</code> scripts' abstraction, while adding some helpful extras - a ready-made project strucutre and some great development features, including a great PWA support plugin.</p>
   
   <p>A project created this way would have a <code>src/registerServiceWorker.js</code> script included out-of-the-box. Under the hood it would utilize <code><a
         href="https://www.npmjs.com/package/register-service-worker">register-service-worker</a></code>, a module
     created by Evan You, Vue author, that simplifies worker registration and provides hooks to customize worker's
     reaction to some of the most common events, like caching, finding an update or going offline.</p>
-
-    <p>There is really a lot to the Service Workers technology and what you can do with it - to better understand the nuances of this brave, new world, I suggest</p>
-
 
   <h4 class="mt-5"><strong>Serving over HTTPS</strong> </h4>
 
