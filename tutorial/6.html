@@ -19,7 +19,7 @@
       <figcaption class="figure-caption text-center">You can emulate slow network connections from the Network Throttling menu in the Chrome browser.</figcaption>
     </figure>
 
-    <p>It's because of how modern single page apps work - at the first load, we serve the <code>index.html</code> file, which for now is just a blank page with <code>div#root</code>. Next, the JS bundle is downloaded and then it has to boot up our Vue application. This approach lets us make our website dynamic, immersive and interactive, but the downside is that it significantly increases the load time.</p>
+    <p>It's because of how modern single page apps work - at the first load, we serve the <code>index.html</code> file, which for now is just a blank page with <code>div#app</code>. Next, the JS bundle is downloaded and then it has to boot up our Vue application. This approach lets us make our website dynamic, immersive and interactive, but the downside is that it significantly increases the load time.</p>
 
     <p>As a developer, we have to think about every potential user, who may live in the areas where the network speed is not so impressive. We want to ensure that all users have the best possible experience.</p>
 
@@ -27,7 +27,7 @@
 
     <h4 class="mt-5"><strong>The App Shell</strong></h4>
 
-    <p>The Application Shell architecture is a concept of separating the content of your app from the UI shared across different views. In other words - the app shell is a part of the app which does not change often. We want the minimum HTML and CSS to display something meaningful to the user as soon as possible. The first load should be extremely quick and then get immediately cashed.</p>
+    <p>The Application Shell architecture is a concept of separating the content of your app from the UI shared across different views. In other words - the app shell is a part of the app which does not change often. We want the minimum HTML and CSS to display something meaningful to the user as soon as possible. The first load should be extremely quick and then get immediately cashed. The JS bundle is always too big, as well - let's reduce it.</p>
 
     <p>1. Let's remove our stylesheets import in the <code>src/main.js</code> file and replace them with link tags in the root folder's <code>index.html</code>'s head tag. We are doing it so that the critical resources can be fetched quick, along the initial markup and without waiting for our heavy-weight JS.</p>
 
@@ -53,7 +53,7 @@
         src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/vue/tutorials/vue-pwa/6/copy.png"
         alt="Copy HTML"></div>
 
-    <p>The markup copied that way will have Vue-specific hash-named attributes starting with <code>v-{hash}</code>. Their purpose has to do internal workings of the framework - they are used to seamlessly identify DOM elements. You don't have to worry about them being there, feel free to keep them there or delete. The easiest way is to find all places a particular attribute appears is either by using a search tool or, in newer versions of VSCode, by selecting one and keep on pressing <code>Ctrl + D</code> to select the others, then <code>Del / Backspace</code>. To skip this manual labour have a look below, where a markup that has already been tidied up is presented.</p>
+    <p>The markup copied that way will have Vue-specific hash-named attributes starting with <code>data-v-{hash}</code>. Their purpose has to do internal workings of the framework - they are used to seamlessly identify DOM elements. You don't have to worry about them being there, feel free to keep them or delete. The easiest way is to find all places a particular attribute appears is either by using a search tool or, in newer versions of VSCode, by selecting one and keep on pressing <code>Ctrl + D</code> to select the others, then <code>Del / Backspace</code>. To skip this manual labour have a look below, where a markup that has already been tidied up is presented.</p>
 
     <p>See the class-less, id-less div beneath the <code>Today:</code> header? These are our events - live, dynamic, fetched from a server or <code>localStorage</code>. Right now we are working on the static HTML, one to be displayed before anything else happens - it has no idea about events to display, as it did not have a chance to ask the backend about them yet. This is why, instead of pretending we know stuff we really don't, let's give our users an indication of progress during the initial app load. Delete these pesky events' markup in their class-less, id-less tags and paste the code for a Bootstrap loader instead.</p>
 
@@ -80,7 +80,7 @@
             <meta name="viewport" content="width=device-width,initial-scale=1.0">
             <title>mdbvue</title>
             <script src="https://maps.googleapis.com/maps/api/js" async></script>
-            <link rel="manifest" href="manifest.json" />
+            <link rel="manifest" href="/static/manifest.json" />
             <!-- Bootstrap core CSS -->
             <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
             <!-- Material Design Bootstrap -->
@@ -122,23 +122,6 @@
               </div>
             </div>
             <!-- built files will be auto injected -->
-            <script>if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('serviceWorker.js', {scope: '/'}).then(function(reg) {
-
-                if (reg.installing) {
-                  console.log('Service worker installing');
-                } else if(reg.waiting) {
-                  console.log('Service worker installed');
-                } else if(reg.active) {
-                  console.log('Service worker active');
-                }
-
-              }).catch(function(error) {
-                // registration failed
-                console.log('Registration failed with ' + error);
-              });
-            }
-            </script>
           </body>
         </html>
       </code>
