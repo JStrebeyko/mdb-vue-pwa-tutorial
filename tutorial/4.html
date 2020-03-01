@@ -55,9 +55,13 @@
 
     <mdbsnippet>
       <code data-lang="js" data-name="./service-worker.js">
+        const cacheVersion = 'v1';
+
         self.addEventListener('install', function (event) {
+          self.skipWaiting();
+        
           event.waitUntil(
-            caches.open('v1').then(function (cache) {
+            caches.open(cacheVersion).then(function (cache) {
               return cache.addAll([
                 './index.html'
               ]);
@@ -79,7 +83,7 @@
                 // and serve second one
                 let responseClone = response.clone();
         
-                caches.open('v1').then(function (cache) {
+                caches.open(cacheVersion).then(function (cache) {
                   cache.put(event.request, responseClone);
                 });
                 return response;
@@ -94,7 +98,7 @@
 
     <p>As you can see, the worker above listens for two events.</p>
 
-    <p>The <code>install</code> event provides an opportunity to define the caching policy. In this case, it opens a perticular cache (named <code>v1</code>) and uses the <code>cache.addAll()</code> method to add a list of specific files there. As of now, we only cache <code>./index.html</code></p>
+    <p>The <code>install</code> event provides an opportunity to define the caching policy. First, we call <code>self.skipWaiting();</code> so that our Worker gets to work instantly. Then, it opens a perticular cache (named <code>v1</code>) and uses the <code>cache.addAll()</code> method to add a list of specific files there. As of now, we only cache <code>./index.html</code></p>
 
     <p>What we have stored we want to ultiately retrieve. To define the fashion in which it happens, <code>fetch</code> event callback and response's <code>.respondWith()</code> method are used. In case there is an already stored resource for a specific request (<code>caches.match(event.request)</code>) and it's not undefined, we retrieve it and pass as the return value of the <code>fetch</code>. In case it is in fact undefined (so, not stored), we do a request to the web for it, but immidiately it gets back, we clone it, so we can both store it in the cache and serve it as a response.</p>
 
