@@ -18,19 +18,19 @@
     </h2>
 
     <p class="description">Now, we are going to add an indicator to inform our users that the internet connection has
-      been lost. Firstly, though, let's have an overview of what's needed for the component to work.</p>
+      been lost. Firstly, though, let's have an overview of what's needed for the component to work. Let's start with the underlying logic.</p>
 
-    <p class="discription">Let's start with what's most imprtant - the underlying logic. How does an app even know that the digital flow that has brought it to a browser is no longer there? Luckily, with JavaScript it's fairly simple. The Navigator interface represents the state and the identity of the user agent. It allows scripts to query it and to register themselves to carry on some activities. To ask it whether we're using internet to connect to the current page, try:</p>
+    <p class="discription">How does an app even know that the digital flow that has brought it to a browser is no longer there? Luckily, with JavaScript it's fairly simple. The Navigator interface represents the state and the identity of the user agent. It allows scripts to query it and to register themselves to carry on some activities. To ask it whether we're using internet to connect to the current page, try:</p>
     <mdbsnippet>
       <code data-lang="js" data-name="console">
         navigator.onLine
       </code>
     </mdbsnippet>
 
-    <p class="description">Pretty neat, huh? It returns a boolean answer, that should be <code>false</code> for stuff served from our own webserver (localhost). Despite all the glitter and sparks, in the morning we should all face the truth: the solution is not that useful. We do not want to be monitoring the status every given interval - in fact, we do not care about it until the very moment it changes. And when it finally does, we want to react and vue the notification. Yes, it was a pun. Haha. So, how do we do that?</p>
+    <p class="description">The above returns a boolean answer, that should be <code>false</code> for stuff served from our own webserver (localhost). Despite all the glitter and sparks, in the morning we should all face the truth: the solution is not that useful. We do not want to be monitoring the status every given interval - in fact, we do not care about it until the very moment it changes. And when it finally does, we want to react and vue the notification. Yes, it was a pun. Haha. So, how do we do that?</p>
 
     <p class="discription">
-      When the <code>navigator.onLine</code>'s value changes, the Window interface fires an event. What event? It depends on the value, but either way it will be one of <code>online</code> or <code>offline</code> events. That means that we can listen to it!
+      When the <code>navigator.onLine</code>'s value changes, the Window interface fires an event, either <code>online</code> or <code>offline</code>. That means that we can listen to it!S
     </p>
 
     <mdbsnippet>
