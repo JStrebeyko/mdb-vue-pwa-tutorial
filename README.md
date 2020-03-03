@@ -1,3 +1,5 @@
+[The app](https://mdb-vue-pwa.firebaseapp.com/)
+
 # Material Design for Bootstrap Vue PWA tutorial
 The repo contains an exemple agenda app in different stages and the tutorial content, describing the codes' ascention to a Progressive Web App. 
 It goes step by step, requiring no sophisticated tooling beyond Vue and webpack nor a git skill.
@@ -13,16 +15,18 @@ The tutorial ("the documentation") will be available on the MDB website soon, wi
 The tutorial starts where the MDB introductory course into Vue left off, and as such it assumes no new `git` ability of the _neophite_. Because of this, the consequtive steps are presented in separate folders within the `app/` directory, rather than on different branches. I am not a fan of this solution for many reasons (most notably because I consider `git` an essential tool for anyone interested in web-development and the FOSS culture, which should not be shun away from), but hey - at least it stays consistent with its precessor.
 
 ### App stages:
-- [ ] 1. Start
-- [ ] 2. Deploying to Firebase
-- [ ] 3. Make it installable I: the Manifest
-- [ ] 4. Make it installable II: HTTPS & the ServiceWorker
-- [ ] 5. Working offline
-- [ ] 6. The App Shell Model
-- [ ] 7. iOS support
+- [x] 1. Start
+- [x] 2. Deploying to Firebase
+- [x] 3. Make it installable I: the Manifest
+- [x] 4. Make it installable II: HTTPS & the ServiceWorker
+- [x] 5. Working offline
+- [x] 6. The App Shell Model
+- [x] 7. iOS support
 - [ ] 8. the PWA audit
 - [ ] 9. Conclusion
 
 ### Other TODOs:
 - [ ] Create appropriate install banners for iOS
-- [ ] Add the icons folder
+- [x] Add the icons folder
+- [x] Add splashscreens
+- [ ] fix sections' ids
