@@ -1,7 +1,7 @@
 <!--Section: Tutorial content-->
 <section class="tutorial" id="databases">
 
-  <section id="indexedDB">
+  <section id="audit">
     <h2 class="title mb-4">
       <strong>PWA audit</strong>
     </h2>
@@ -32,10 +32,10 @@
       results. </p>
 
     <p>Moreover, it gives you a set of recommendations - that, when implemented, improve your website performance and
-      visibility to the search engines. It's always a good idea to measure your site against Google's set of criteria -
+      visibilitzy to the search engines. It's always a good idea to measure your site against Google's set of criteria -
       their suggestions will help you to become a better developer.</p>
 
-    <p>Lighthouse is available as a Chrome extension for Chrome 52 and later, and since lately, Firefox.</p>
+    <p>Lighthouse is available as a Chrome extension for Chrome 52 and later, and since lately, Firefox.ma</p>
 
     <h4 class="mt-5"><strong>How to run the audit?</strong> </h4>
 
@@ -46,7 +46,7 @@
         src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/react/tutorials/react-pwa/8/audit.png"
         alt="Lighthouse audit"></div>
 
-    <p>Open the tab, adjust the settings to your needs or run as a default. After a brief moment, you will see a
+    <p>Open the tab, adjust the settings to your needs or run as a default. After a brief moment, you will see the
       report.</p>
 
     <div class="text-center"> <img class="img-fluid"
@@ -54,11 +54,82 @@
         alt="Lighthouse report"></div>
 
 
-    <p> As you can see, according to Google's guidelines, our app is fully progressive. Not bad at all. Of course there
-      is room for improvement in case of other criteria - I encourage you to investigate and try to solve those issues
-      as it could be a fun challenge.</p>
+      <p>As you can see, there is some room for improvement! By clicking on categories or by scrolling down, we can examine the test results in detail.</p>
 
+      <div class="text-center"> <img class="img-fluid"
+          src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/react/tutorials/vue-pwa/8/details.png"
+          alt="detailed PWA report"></div>  
+        
+    <p>There are at least four things we could do to make our app more Progressive. Let's start from the bottom.</p>
 
+    <h4 class="mt-5"><strong><code>Content is not sized correctly to the viewport</strong></h4>
+      
+    <p>The issue at hand has to do with the fact, that at some point, while the Lighthouse has been checking different viewport widths, the <code>innerWidth</code> and <code>outerWidth</code> properties of the <code>window</code> interface have been different. To ensure the best mobile user experience, the test is effectively checking whether the content does not overflow horizontally, leading to an unexpected scroll time. The number of pixels in the hint indicates at what width the problem appears - you can simulate it by simply narrowing the browser window to see exactly, what does it mean.</p>
+
+    <div class="text-center"> <img class="img-fluid"
+      src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/react/tutorials/vue-pwa/8/width.png"
+      alt="Content is leaking to the right"></div>  
+
+    <p>The culprit is right there - when the horizontal space is getting scarce, the two main columns of our app stay side by side, resulting in the text being pushed out the right border. How to solve it? Well, for one, we could add a scoped <code>&lt;style&gt;</code> tag to our <code>./src/App.vue</code> file and include there a CSS <code>overflow-x: hidden;</code> rule targetting the main <code>.container</code>.</p>
+
+    <p>The solution would allow us to pass the test by hiding away the problem's effects, but let's face it - it would not allow us to regain what we're currently loosing, namely the control over the flow of the content on narrow viewports. We are good devs with genuine intent of having the content accessible on mobile devices, so let's utilize the MDB customizability instead. After all, why hide the leaking content, if we could have it beautifully displayed using the library?</p>
+
+    <p>Let's have the layout as it is, but in case there is no space to have the main columns  side-by-side, may the content flow down. We'll achieve it using the <a href="https://mdbootstrap.com/docs/vue/layout/grid-usage/">MDBVue's grid system</a> through <code>&lt;mdb-col&gt;</code> props.</p>
+
+    <p>The way it is now, we are describing the columns' widths as <code>9</code> and <code>3</code> for all the screen sizes. As we know from <a href="https://mdbootstrap.com/docs/vue/layout/grid-usage/">the docs</a>, though, we can overwrite them using dedicated props for given sizes and up.</p>
+      
+    <p>Ideally, we would like to keep the current columns' proportion for all the screen sizes wider than <code>sm</code>(all), where the columns should go one beneath the other, taking up all the available horizontal space (so <code>12</code>).</p>
+
+    <p>To achieve it, identify the two root columns in the app. We must fiddle with their props - assign maximum width for default (the smallest) screens, and overwrite it with the current proportions for viewport widths beyond smartphones using the <code>sm</code> prop.</p>
+
+    <mdbsnippet>
+      <code data-lang="html" data-name="./src/App.vue">
+        <template>
+          <mdb-container>
+            <Notification :status="status" />
+            <mdb-row>
+              <mdb-col col="12" sm="9">
+                <!-- first column's contents... -->
+              </mdb-col>
+              <mdb-col col="12" sm="3">
+                <!-- second column's contents... -->
+              </mdb-col>
+
+      </code>
+    </mdbsnippet>
+
+  <p>Try it out now - the content should gracefully flow down on mobile, while the Lighthouse PWA width test should pass as well!</p>
+
+  <h4 class="mt-5"><strong><code>Does not set a theme color for the address bar</strong></h4>
+
+  <p>Lack of the <code>theme-color</code> meta tag is considered a failure. Didn't we declare it at the very end of our <code>manifest.json</code> (although spelled with an underscore, <code>theme_color</code>)?</p>
+      
+  <p>It turns out we should always specify the color using the tag - browsers only acknowledge the manifest only once the user has added the page to their home screen. Otherwise, the tag overwrites the value from the manifest, allowing for more customization. Let's add the tag, then!</p>
+
+      <mdbsnippet>
+        <code data-lang="html" data-name="./index.html">
+          <!--...somewhere in the head tag... -->
+          <meta name="theme-color" content="#4DBA87">
+        </code>
+      </mdbsnippet>
+
+  <p>Yup, it is all there is to it!</p>
+
+  <h4 class="mt-5"><strong><code>Does not redirect HTTP traffic to HTTPS</strong></h4>
+
+  <p>The big idea here is: Lighthouse will be permissive when it comes to serving </p>
+    
+  <h4 class="mt-5"><strong><code>Page load is not fast enough on mobile networks</code></strong></h4>
+
+  <!-- <p>The two final PWA tests our app failed have to do not so much with the app per se, but the way it is served. Redirecting requests for HTTP is </p>
+      
+    2) width: the mdb-col sm="9" attribut
+      3) Firebase HTTPS
+
+    - redirect happening by itself.
+   -->
+
+  <!-- HOW WE FIX Performance -->
     <p class="description">Something doesn't work for you? Check the code for this lesson on our <a
         href="https://github.com/mdbootstrap/React-Tutorial-PWA/archive/master.zip">repository</a></p>
 
