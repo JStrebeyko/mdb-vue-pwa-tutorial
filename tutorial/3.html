@@ -4,21 +4,22 @@
 
     <!--Title-->
     <h2 class="title mb-4">
-      <strong>Making an app installable I: The Manifes</strong>
+      <strong>Making an app installable I: The Manifest</strong>
     </h2>
 
     <p class="description">
       One of the most powerful functions that PWA offers is the ability to add our web app to a device's home screen.
-      This single feature fills the big gap between native and web apps, allowing for the latter to look and feel the
+      This feature helps to bridge the gap between native and web apps, allowing for the latter to look and feel the
       "native" way.
     </p>
 
     <p class="description">Surprisingly, <strong>it doesn't require a lot of work</strong>. We will cover everything in
       the upcoming lessons.</p>
 
-    <p class="description">What it all boils down to is presenting the users with the sole ability of installing our
-      app. It takes form of an App Install Banner - a simple browser dialog. According to <a
-        href="https://developers.google.com/web/fundamentals/app-install-banners/">the official documentation</a>, there
+    <p class="description">What the feature boils down to is presenting users with ability to install our
+      app onto their homescreens. In pratice, the ability takes form of an App Install Banner - a simple browser dialog.
+      According to <a href="https://developers.google.com/web/fundamentals/app-install-banners/">the official
+        documentation</a>, there
       are only few requirements:</p>
     <ul>
       <li>The web app is not already installed</li>
@@ -29,14 +30,15 @@
       </li>
     </ul>
 
-    <p>Of course the two first ones are beyond our control. As a developer, you have to take care of the last three.
-      Let's begin with the app manifest.</p>
+    <p>Of course the two first ones are beyond our control, it's the user who decides for how long the interactions
+      takes place or what is or isn't installed at their homescreens. As developers, we have to take care of the last
+      three. Let's begin with the app manifest.</p>
 
     <h3 class="mt-5"><strong>What is an app manifest?</strong></h3>
 
     <p>App manifest is a simple JSON file, describing some of the properties the app has to have defined to utilize the
       PWA charm. In that, the file resembles an App Store description of a native app. It is possible that you have
-      already stumbled upon it in some other projects' directories, definitely in ones created using
+      already stumbled upon it in some other projects' directories, escpecially the ones created using
       <code>vue-cli</code> or <code>create-react-app</code> boilerplate systems.</p>
 
     <p>Minimal <code>manifest.json</code> consists of these fields:</p>
@@ -57,143 +59,142 @@
         </code>
       </mdbsnippet>
       <li><code>display</code></li> must be one of: <code>fullscreen</code>, <code>standalone</code>, or
-      <code>minimal-ui</code>
+      <code>minimal-ui</code>. It changes how much of browser UI is shown to the user and can range from "browser" (when
+      the full browser window is shown) to "fullscreen" (when the app is full-screened).
     </ul>
 
     <p>A full list of the supported properties which can be used is found <a
         href="https://developer.mozilla.org/en-US/docs/Web/Manifest">here</a>.</p>
 
     <p>
-      All right! Now, armed with the necessary theoretical background, let's create a <code>manifest</code> on our own!
-      Let's place it in the project's <code>/static</code> directory, hinting that we want to keep it as it is (static)
-      rather than somehow process it, as we do with <code>.vue</code> files, for example. Doing so means we no longer need
-      the <code>.gitkeep</code> in the directory - we can freely get rid of it.
+      Now, armed with the necessary theoretical background, let's create a <code>manifest.json</code> file on our own!
+      Let's place it in the project's <code>/static</code> directory, hinting that we want to keep it as it is (static),
+      rather than having it somehow processed, as we do with the <code>.vue</code> files, for example. Doing so in there
+      means we no longer need the <code>.gitkeep</code> file, which was only ensuring the folder gets considered by the
+      contol system we can freely get rid of it.
     </p>
 
     <mdbsnippet>
       <code data-lang="js" data-name="static/manifest.json">
         {
-          "short_name": "Agenda App",
-          "name": "MDBootstrap Agenda App Demo",
-          "icons": [
-            {
-              "src": "icons/Icon-36.png",
-              "sizes": "36x36",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-48.png",
-              "sizes": "48x48",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-72.png",
-              "sizes": "72x72",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-96.png",
-              "sizes": "96x96",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-120.png",
-              "sizes": "120x120",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-144.png",
-              "sizes": "144x144",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-152.png",
-              "sizes": "152x152",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-167.png",
-              "sizes": "167x167",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-180.png",
-              "sizes": "180x180",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-192.png",
-              "sizes": "192x192",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-512.png",
-              "sizes": "512x512",
-              "type": "image/png"
-            },
-            {
-              "src": "icons/Icon-1024.png",
-              "sizes": "1024x1024",
-              "type": "image/png"
-            }
-          ],
-          "start_url": "./index.html",
-          "display": "standalone",
-          "background_color": "#000000",
-          "theme_color": "#4DBA87"
+        "short_name": "Agenda App",
+        "name": "MDBootstrap Agenda App Demo",
+        "icons": [
+        {
+        "src": "icons/Icon-36.png",
+        "sizes": "36x36",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-48.png",
+        "sizes": "48x48",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-72.png",
+        "sizes": "72x72",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-96.png",
+        "sizes": "96x96",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-120.png",
+        "sizes": "120x120",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-144.png",
+        "sizes": "144x144",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-152.png",
+        "sizes": "152x152",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-167.png",
+        "sizes": "167x167",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-180.png",
+        "sizes": "180x180",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+        },
+        {
+        "src": "icons/Icon-1024.png",
+        "sizes": "1024x1024",
+        "type": "image/png"
+        }
+        ],
+        "start_url": "./index.html",
+        "display": "standalone",
+        "background_color": "#000000",
+        "theme_color": "#4DBA87"
         }
       </code>
     </mdbsnippet>
 
-    <h3 class="title mb-4">manifest.json - icons</h3>
+    <h3 class="title mb-4">Icons</h3>
 
     <p>
-      As you can see, the JSON file are referencing a number of images of different sizes we do not have yet. Why? There
-      is a world of screens waiting for our PWA to get installed, most of them have their own size and pixel density. To
-      be able to cover that means preparing these images up front and including them into our web manifest. Let the app
-      do the rest regarding picking a proper picture for viewing.
+      As you can see, the JSON file are referencing a number of images of different sizes we do not have yet. Why do we
+      even include them all? There is a world of screens waiting for our PWA to get installed, most of them have their
+      own size and pixel density. To be able to cover that means preparing these images up front and including them into
+      our web manifest. Let the app do the rest regarding picking a proper picture for viewing.
     </p>
 
     <blockquote class="blockquote bq-danger my-2">
       <p class="bq-title">Note!</p>
-      <p>I am mentioning all the different sizes to illustrate the possible pixel-perfect coverage purposes, which
-        exceeds beyond a minimal manifest example. To satisfy Lighthouse PWA Audit, which is an important benchmark
+      <p>All the different sizes are mentioned to illustrate the possible pixel-perfect coverage purposes, which
+        exceed beyond a minimal manifest example. To satisfy Lighthouse PWA Audit, which is an important benchmark
         (more on that in the upcoming lesson) you may want to start off small. In that case, I'd suggest beginning with
-        a 192x192px and and 512x512px-sized icons.</p>
+        a 192x192px and a 512x512px-sized icons.</p>
     </blockquote>
 
     <p>
-      So, why all the icons? Let's break the list down. The <code>36x36</code>, <code>48x48</code>, <code>72x72</code>,
-      <code>96x96</code>, <code>144x144</code> and <code>192x192</code> pixels icons are optimized to be used on the
-      Android platform; folks at Google made sure these sizes would play well without getting pixelated or blurry. To
-      cover all the Andoroid needs, what we need is also a <code>512x512</code> - it's used for the splash-screens.
+      Let's break the list down. The <code>36x36</code>, <code>48x48</code>, <code>72x72</code>, <code>96x96</code>,
+      <code>144x144</code> and <code>192x192</code> pixels icons are optimized to be used on the Android platform; folks
+      at Google made sure these sizes would play well without getting pixelated or blurry. To cover all the Andoroid
+      needs, what we also need is a <code>512x512</code> - it's used for the splash-screens.
     </p>
 
     <p>
       The sizes of icons for iOS platform are: <code>120x120</code>, <code>152x152</code>, <code>167x167</code> and
       <code>180x180</code> pixels. It's the last one that covers the most current iOS guidelines - the others are
       included for backward compatibility reasons. The final dimensions set you might need, <code>1024x1024</code>, is
-      used in the
-      Apple App Store. Even though not many PWAs end up there, a large square icon might turn out handy, as it can
-      always get scaled down by the plarform.
+      used in the Apple App Store. Even though not many PWAs end up there, a large square icon might turn out handy, as
+      it can always get scaled down by the plarform.
     </p>
 
     <p>
-      You'd like to have your own icon, but you do not know where to start? When it comes to the very design,
-      you should follow the same best practices you'd follow for <a
-        href="https://material.io/design/iconography/#icon-treatments">any Android icon</a>. In case you do already have
-      an icon, but
-      not sure how to swiftly resize it to end up with a necessary set for a PWA? There are many online tools for the
-      job -
-      you may want to <a href="http://letmegooglethat.com/?q=pwa+icon+generator">research</a> your favorite one, or
-      let us provide you with a <a href="TODO">zip</a> so you don't have to. Add the (unzipped) icons folder into the
-      <code>static/</code> directory.</p>
+      You'd like to have your own icon, but you do not know where to start? When it comes to the very design, the same
+      best practices for <a href="https://material.io/design/iconography/#icon-treatments">any Android icon</a> should
+      be followed. In case you already have an icon for an app, but you think creating all these different files
+      manually is a drag - you are absolutely right! There are many online tools for creating necessary icon sets for
+      PWA - you may want to <a href="http://letmegooglethat.com/?q=pwa+icon+generator">research</a> your favorite one,
+      or let us provide you with a <a href="TODO">zip</a> so you don't have to. Add the (unzipped) <code>/icons </code>
+      folder into the <code>static/</code> directory.</p>
 
     <h3 class="mt-5"><strong>Linking the manifest up</strong></h3>
 
     <p>We are almost done here - the only thing that's left is actually letting the browser know the manifest is on
-      board by including our manifest into the
-      <code>head</code> tag of our HTML in the project's root directory.</p>
+      board by including it into the <code>&gt;head&lt;</code> tag of our <Code>./index.html</Code> file in the
+      project's root directory.</p>
 
     <mdbsnippet>
       <code data-lang="html" data-name="./index.html">
@@ -207,20 +208,21 @@
     </mdbsnippet>
 
     <p>
-      After running <code>yarn build</code> or <code>yarn deploy</code>, you should see the an
-      inner <code>/static</code> folder being created <em>inside</em> the <code>/dist</code> directory, being an exact
-      copy of the original, root instance of the folder. Having the folder structure copied means the relative route,
-      embedded explicitly in our HTML, stays the same, while the rest of the project gets prepared for a deploy.
+      After running <code>yarn build</code> or <code>yarn deploy</code>, you should see the <code>/static</code> folder
+      copy being instilled <strong>inside</strong> the <code>/dist</code> directory. Having the file structure copied
+      means the relative route, embedded explicitly in our HTML, stays the same, while the rest of the project gets
+      prepared for a deploy.
     </p>
 
     <p>
-      To see whether everything works, simply <code>yarn dev</code> the project and refer to the devtools console. All
-      the possible problems with icon availability, caused by either a file mis-naming, improper JSON formatting, or
-      whatever else, should be listed there. For more holistic approach towards testing the PWA-readiness of our
-      app, stick with us for an upcoming lesson regarding the audit.
+      To see whether everything works, simply <code>yarn dev</code> the project and refer to the devtools console
+      (<code>F12</code> or <code>Ctrl</code> + <code>Shift</code> + <code>J</code> depending on the browser used). All
+      the possible problems with icon availability, caused by either a file mis-naming or improper JSON formatting
+      should be listed there. For more holistic approach towards testing the PWA-readiness of our app, stick with us for
+      an upcoming lesson regarding the audit.
     </p>
 
-    <p>In the next lesson, we will take care of the two other points on our criteria list - HTTPS and service worker.
+    <p>In the next lesson, we will take care of the two other criteria on the list - HTTPS and service worker.
     </p>
 
     <p class="description">Something doesn't work for you? Then check the code for this lesson on our <a
