@@ -111,7 +111,7 @@
   <p>As you can see, the worker above listens for two events.</p>
 
   <p>The <code>install</code> event provides an opportunity to define the caching policy. First, we call
-    <code>self.skipWaiting();</code> so that our Worker gets to work instantly. Then, it opens a perticular cache (named
+    <code>self.skipWaiting();</code> so that our Worker gets to work instantly. Then, it opens a particular cache (named
     <code>v1</code>) and uses the <code>cache.addAll()</code> method to add a list of specific files there. As of now,
     we only cache <code>./index.html</code>.</p>
 
@@ -155,24 +155,33 @@
 
   <p>With the <code>register</code> and <code>install</code> life-cycle steps accounted for, we have all the main
     indridients for a successful service worker implementation. We might find an issue in the console regarding the
-    files MIME type, though. Why?</p>
+    file's MIME type - apparently <code>service-worker.js</code> is not JS. What's more - clicking the link to the file
+    in the error description leads to opening up a new tab with our project! What is happening?</p>
 
-  <p>It's because our webpack dev server and production build configs don't expect a JavaScirpt file being served from
-    the root directory while not being processed by the bundler. Moving <code>./service-worker.js</code> to the
-    <code>/static</code> directory (where our manifest.json already resides) seems like a good way to sneak it
-    in; unfortunately, it wouldn't help our case. Again, why?</p>
+  <img class="img-fluid mr-2"
+    src="https://mdbootstrap.com/wp-content/themes/mdbootstrap4/content/vue/tutorials/vue-pwa/4/unsupported-MIME-type-error.png"
+    alt="MIME type error">
 
-  <p>Considering how <strong>powerful</strong> a feature the service worker is, there are security measures undertaken to protect from
-    misuse. One of them is the the service worker's <code>scope</code> - even though we can declare it explicitly from
-    the options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function, it can
-    never go "up" from where the service worker is defined. It means that you can have define custom workers for
-    different places of your projects, but also that the worker in <code>/static</code> directory could never reach
-    files outside of it, like our <code>index.html</code>.</p>
+  <p>The reason for this weird behavior lies in our webpack config. Let's start with the fact that
+    <code>webpack-dev-server</code>, so a crucial part of our development environment, is not informed that there is a
+    JavaScript resource that should be available from within our running web server and, even more suprisingly, is to
+    not be processed by the bundler. This unavailability results in the puzzling after-effect: trying to access the file
+    results in opening up of our <code>./index.html</code> (so a new <code>localhost</code> tab within the browser) -
+    this is where all the unhandled requests are redirected in our app.</p>
 
-  We need to slightly alter our <code>dev</code> and <code>prod</code> config files in the <code>/build</code>
-  directory. In both of them we are utilizing the <code>CopyWebpackPlugin</code> to move our files around. Let's mention
-  our service worker there - that way it will available both for the dev server and also in the <code>/dist</code>
-  directory once we build.
+  <p>What should we do? We know about the directory from where the resources are available. Moving
+    <code>./service-worker.js</code> to the <code>/static</code> directory, where our manifest.json already resides,
+    seems like a good way to sneak it
+    in. Unfortunately, getting it to work will not be as straightforward.</p>
+
+  <p>Considering how <strong>powerful</strong> a feature the service worker is, there are security, anti-misuse measures
+    undertaken. One of them is the the service worker's <code>scope</code>, so the exact reach within a project. It oftentimes is assumed (defaulting to <code>{scope: '/'}</code>), but you can customize it using options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function. It means that you can have custom workers for different places of your web project!</p>
+    
+    <p>Whatever the assumed or the declared scope is, however, there's a catch: service worker can never reach "up", so outside the directory where the very file is held. Putting it in the <code>/static</code> folder would mean it can cache only the resources there, and never, say, our <code>./index.html</code> waiting outside. We have to make the webpack config acknowlage the file instead.</p>
+
+  <p>Do to it, we need to slightly alter our <code>dev</code> and <code>prod</code> webpack config files in the
+    <code>/build</code> directory. In both of them we are utilizing the <code>CopyWebpackPlugin</code> to move our files around. Let's mention our service worker there - that way it will available both from within our dev server and the
+    <code>/dist</code> directory once we build.</p>
 
   <mdbsnippet>
     <code data-lang="js" data-name="./build/webpack.dev.config.js">
@@ -204,12 +213,12 @@
   </mdbsnippet>
 
   <p>And voilà! Now we are declaratively giving access to the file to the webpack dev server, while also having the
-    worker script copied to the <code>/dist</code> when we build.</p>
+    worker script copied to the <code>/dist</code> when we build. You can check it out in the <strong>Application</strong> tab in Chromium DevTools or at <code>about:debugging#/runtime/this-firefox</code> in Firefox (simply copy and paste the string to the address bar).</p>
 
   <h4 class="mt-5"><strong>Default scaffolding with Vue-CLI</strong></h4>
 
   <p>Our purpose here was to do everything by ourselves for learning purposes, but in everyday developer work we could
-    make use of some already existing tools for the job. For new projects usually we wouldn't need the fine-grained
+    make use of some already existing tools for the job. For new projects usually we would not need the fine-grained
     control provided with a custom webpack config, and could go for a ready-made, scaffolding solution of <a
       href="https://cli.vuejs.org/guide/"><code>Vue-CLI</code></a>. The command line solution provides us with less "to
     the metal" configuration options, as the bundler's roughness is hidden beneath the <code>vue-cli-service</code>
@@ -220,12 +229,11 @@
     Under the hood it would utilize <code><a
         href="https://www.npmjs.com/package/register-service-worker">register-service-worker</a></code>, a module
     created by Evan You, Vue author, that simplifies worker registration and provides hooks to customize worker's
-    reaction to some of the most common events, like caching, finding an update or going offline.</p>
+    reaction to some of the most common events, like caching, finding an update or going offline. It really makes life easier if when seeking to present a quick prototype rather then diving for a fine-tuned production-grade app.</p>
 
   <h4 class="mt-5"><strong>Serving over HTTPS</strong> </h4>
 
-  <p>We have already deployed our applications to Firebase Hosting, so we don't need to worry about HTTPS - our
-    domain is already HTTPS-certified. So let's update our hosted app: </p>
+  <p>Another requirement for rendering the App Installation Banner by the browser is having the project deployed on a HTTPS-certified domain, which we have, thanks to Firebase Hosting. So, let's update our app: </p>
 
   <mdbsnippet>
     <code data-lang="js" data-name="CLI">
