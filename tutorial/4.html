@@ -1,5 +1,5 @@
 <!--Section: Tutorial content-->
-<section class="tutorial" id="adding-pwa">
+<section class="tutorial" id="pwa-https">
   <h2 class="title mb-4">
     <strong>HTTPS & Service workers</strong>
   </h2>
@@ -71,39 +71,39 @@
       const cacheVersion = 'v1';
 
       self.addEventListener('install', function (event) {
-      self.skipWaiting(); // We do it for our worker not to wait until the previous one expires
+        self.skipWaiting(); // We do it for our worker not to wait until the previous one expires
 
-      event.waitUntil(
-      caches.open(cacheVersion).then(function (cache) {
-      return cache.addAll([
-      './index.html'
-      ]);
-      })
-      );
+        event.waitUntil(
+          caches.open(cacheVersion).then(function (cache) {
+            return cache.addAll([
+              './index.html'
+            ]);
+          })
+        );
       });
 
       self.addEventListener('fetch', function (event) {
-      event.respondWith(caches.match(event.request).then(function (response) {
-      // caches.match() always resolves
-      // but in case of success response will have value
-      if (response !== undefined) {
-      return response;
-      } else {
-      return fetch(event.request).then(function (response) {
-      // response may be used only once
-      // we need to save clone to put one copy in cache
-      // and serve second one
-      let responseClone = response.clone();
+        event.respondWith(caches.match(event.request).then(function (response) {
+          // caches.match() always resolves
+          // but in case of success response will have value
+          if (response !== undefined) {
+            return response;
+          } else {
+            return fetch(event.request).then(function (response) {
+              // response may be used only once
+              // we need to save clone to put one copy in cache
+              // and serve second one
+              let responseClone = response.clone();
 
-      caches.open(cacheVersion).then(function (cache) {
-      cache.put(event.request, responseClone);
-      });
-      return response;
-      }).catch(function () {
-      return console.log('no cache response!');
-      });
-      }
-      }));
+              caches.open(cacheVersion).then(function (cache) {
+                cache.put(event.request, responseClone);
+              });
+              return response;
+            }).catch(function () {
+              return console.log('no cache response!');
+            });
+          }
+        }));
       });
     </code>
   </mdbsnippet>
@@ -136,11 +136,11 @@
   <mdbsnippet>
     <code data-lang="js" data-name="./src/main.js">
       if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').then(() => {
-      console.log('Service Worker registered!');
+        navigator.serviceWorker.register('/service-worker.js').then(() => {
+          console.log('Service Worker registered!');
       });
       } else {
-      console.log('Service Worker not supported :(');
+        console.log('Service Worker not supported :(');
       }
     </code>
   </mdbsnippet>
@@ -163,63 +163,73 @@
     alt="MIME type error">
 
   <p>The reason for this weird behavior lies in our webpack config. Let's start with the fact that
-    <code>webpack-dev-server</code>, so a crucial part of our development environment, is not informed that there is a
+    <code>webpack-dev-server</code>, a crucial part of our development environment, is not informed that there is a
     JavaScript resource that should be available from within our running web server and, even more suprisingly, is to
-    not be processed by the bundler. This unavailability results in the puzzling after-effect: trying to access the file
-    results in opening up of our <code>./index.html</code> (so a new <code>localhost</code> tab within the browser) -
-    this is where all the unhandled requests are redirected in our app.</p>
+    not be processed by the bundler. This unavailability results in the puzzling side-effect: when we try to open the
+    file, we get redirected to our <code>./index.html</code>, so a new <code>localhost</code> tab within the browser. No
+    woneder the MIME types don't add up - in this mix-up, we end up trying to register a service worker while
+    providing a HTML file instead.</p>
 
-  <p>What should we do? We know about the directory from where the resources are available. Moving
-    <code>./service-worker.js</code> to the <code>/static</code> directory, where our manifest.json already resides,
-    seems like a good way to sneak it
-    in. Unfortunately, getting it to work will not be as straightforward.</p>
+  <p>How to fix it? We know about the <code>/static</code> directory from where the resources are available for our
+    locally hosted environment. Moving <code>./service-worker.js</code> to there, where our <code>manifest.json</code>
+    already resides, seems like a good way to sneak it in. Unfortunately, getting it to work will not be as
+    straightforward.</p>
 
   <p>Considering how <strong>powerful</strong> a feature the service worker is, there are security, anti-misuse measures
-    undertaken. One of them is the the service worker's <code>scope</code>, so the exact reach within a project. It oftentimes is assumed (defaulting to <code>{scope: '/'}</code>), but you can customize it using options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function. It means that you can have custom workers for different places of your web project!</p>
-    
-    <p>Whatever the assumed or the declared scope is, however, there's a catch: service worker can never reach "up", so outside the directory where the very file is held. Putting it in the <code>/static</code> folder would mean it can cache only the resources there, and never, say, our <code>./index.html</code> waiting outside. We have to make the webpack config acknowlage the file instead.</p>
+    undertaken. One of them is the the service worker's <code>scope</code> - its property defining the exact reach
+    within a project. It oftentimes is assumed, defaulting to <code>{scope: '/'}</code>, but can be customized using
+    options object passed as the second argument in <code>navigator.serviceWorker.register()</code> function. It means
+    that you can have custom workers for different places of your web project!</p>
 
-  <p>Do to it, we need to slightly alter our <code>dev</code> and <code>prod</code> webpack config files in the
-    <code>/build</code> directory. In both of them we are utilizing the <code>CopyWebpackPlugin</code> to move our files around. Let's mention our service worker there - that way it will available both from within our dev server and the
+  <p>Whatever the assumed or the declared scope is, however, there's a catch: service worker can never reach "up", so
+    outside the directory where the very file is held. So, putting it in the <code>/static</code> folder would mean it
+    can cache only the resources there, and never, say, our <code>./index.html</code> waiting outside. We have to make
+    the webpack config acknowlage the file instead.</p>
+
+  <p>To do it, we need to slightly alter our <code>dev</code> and <code>prod</code> webpack config files in the
+    <code>/build</code> directory. In both of them we are utilizing the <code>CopyWebpackPlugin</code> to move our files
+    around. Let's mention our service worker there - that way it will available both from within our dev server and the
     <code>/dist</code> directory once we build.</p>
 
   <mdbsnippet>
     <code data-lang="js" data-name="./build/webpack.dev.config.js">
       new CopyWebpackPlugin([
-      {
-      from: path.resolve(__dirname, '../static'),
-      to: config.dev.assetsSubDirectory,
-      ignore: ['.*']
-      },
-      {
-      from: path.resolve(__dirname, '../service-worker.js'),
-      to: './service-worker.js',
-      }
+        {
+          from: path.resolve(__dirname, '../static'),
+          to: config.dev.assetsSubDirectory,
+          ignore: ['.*']
+        },
+        {
+          from: path.resolve(__dirname, '../service-worker.js'),
+          to: './service-worker.js',
+        }
       ])
     </code>
     <code data-lang="js" data-name="./build/webpack.prod.config.js">
       new CopyWebpackPlugin([
-      {
-      from: path.resolve(__dirname, '../static'),
-      to: config.build.assetsSubDirectory,
-      ignore: ['.*']
-      },
-      {
-      from: path.resolve(__dirname, '../service-worker.js'),
-      to: './service-worker.js',
-      }
+        {
+          from: path.resolve(__dirname, '../static'),
+          to: config.build.assetsSubDirectory,
+          ignore: ['.*']
+        },
+        {
+          from: path.resolve(__dirname, '../service-worker.js'),
+          to: './service-worker.js',
+        }
       ])
     </code>
   </mdbsnippet>
 
   <p>And voilà! Now we are declaratively giving access to the file to the webpack dev server, while also having the
-    worker script copied to the <code>/dist</code> when we build. You can check it out in the <strong>Application</strong> tab in Chromium DevTools or at <code>about:debugging#/runtime/this-firefox</code> in Firefox (simply copy and paste the string to the address bar).</p>
+    worker script copied to the <code>/dist</code> when we build. You can check the worker we just registered out in the
+    <strong>Application</strong> tab in Chromium DevTools or at <code>about:debugging#/runtime/this-firefox</code> in
+    Firefox (simply copy and paste the string to the address bar).</p>
 
-  <h4 class="mt-5"><strong>Default scaffolding with Vue-CLI</strong></h4>
+  <h4 class="mt-5"><strong>Default PWA scaffolding with Vue-CLI</strong></h4>
 
   <p>Our purpose here was to do everything by ourselves for learning purposes, but in everyday developer work we could
-    make use of some already existing tools for the job. For new projects usually we would not need the fine-grained
-    control provided with a custom webpack config, and could go for a ready-made, scaffolding solution of <a
+    make use of some already existing tools for the job. For new projects we could prefer to exchange the fine-grained
+    control provided with a custom webpack config, for a ready-made, scaffolding solution of <a
       href="https://cli.vuejs.org/guide/"><code>Vue-CLI</code></a>. The command line solution provides us with less "to
     the metal" configuration options, as the bundler's roughness is hidden beneath the <code>vue-cli-service</code>
     scripts' abstraction, while adding some helpful extras - a ready-made project strucutre and some great development
@@ -229,11 +239,13 @@
     Under the hood it would utilize <code><a
         href="https://www.npmjs.com/package/register-service-worker">register-service-worker</a></code>, a module
     created by Evan You, Vue author, that simplifies worker registration and provides hooks to customize worker's
-    reaction to some of the most common events, like caching, finding an update or going offline. It really makes life easier if when seeking to present a quick prototype rather then diving for a fine-tuned production-grade app.</p>
+    reaction to some of the most common events, like caching, finding an update or going offline. It really makes life
+    easier when it is the quick prototyping we are after.</p>
 
   <h4 class="mt-5"><strong>Serving over HTTPS</strong> </h4>
 
-  <p>Another requirement for rendering the App Installation Banner by the browser is having the project deployed on a HTTPS-certified domain, which we have, thanks to Firebase Hosting. So, let's update our app: </p>
+  <p>Another requirement for rendering the App Installation Banner by the browser is having the project deployed on a
+    HTTPS-certified domain, which we have, thanks to Firebase Hosting. So, let's update our app: </p>
 
   <mdbsnippet>
     <code data-lang="js" data-name="CLI">
@@ -257,6 +269,6 @@
   <p>In the next lesson, we will make our application work offline </p>
 
   <p class="description">Something doesn't work for you? Then check the code for this lesson in our <a
-      href="https://github.com/mdbootstrap/React-Tutorial-PWA/archive/master.zip">repository</a></p>
+      href="https://github.com/mdbootstrap/Vue-Tutorial-PWA/archive/master.zip">repository</a></p>
 </section>
 <!--Section: Tutorial content
